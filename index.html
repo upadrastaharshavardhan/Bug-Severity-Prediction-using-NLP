@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Bug Severity Prediction using NLP | Project 8</title>
+
+<meta
+name="description"
+content="Research Package Project 8 — NLP-powered Bug Severity Prediction using Machine Learning."
+
+>
+
+  <meta name="theme-color" content="#080b14">
+
+  <style>
+    :root {
+      --bg: #070a12;
+      --bg-soft: #0d1220;
+      --card: rgba(18, 24, 39, 0.72);
+      --card-solid: #111827;
+      --border: rgba(148, 163, 184, 0.15);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --primary: #8b5cf6;
+      --primary-2: #6366f1;
+      --cyan: #22d3ee;
+      --green: #34d399;
+      --orange: #f59e0b;
+      --red: #fb7185;
+      --max: 1180px;
+      --radius: 22px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+      background:
+        radial-gradient(circle at 15% 10%, rgba(99,102,241,.18), transparent 28%),
+        radial-gradient(circle at 85% 15%, rgba(139,92,246,.16), transparent 25%),
+        radial-gradient(circle at 50% 80%, rgba(34,211,238,.08), transparent 30%),
+        var(--bg);
+
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .035;
+
+      background-image:
+        linear-gradient(rgba(255,255,255,.4) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.4) 1px, transparent 1px);
+
+      background-size: 50px 50px;
+      mask-image: linear-gradient(to bottom, black, transparent 85%);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(var(--max), calc(100% - 40px));
+      margin: auto;
+    }
+
+    /* NAVBAR */
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+
+      backdrop-filter: blur(18px);
+      background: rgba(7, 10, 18, .72);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      height: 72px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      font-weight: 800;
+      letter-spacing: -.03em;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 12px;
+
+      background:
+        linear-gradient(135deg, var(--primary), var(--cyan));
+
+      box-shadow: 0 0 30px rgba(99,102,241,.35);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .nav-links a {
+      transition: .2s ease;
+    }
+
+    .nav-links a:hover {
+      color: white;
+    }
+
+    .github-btn {
+      padding: 9px 16px;
+
+      border: 1px solid var(--border);
+      border-radius: 10px;
+
+      background: rgba(255,255,255,.04);
+
+      font-size: .88rem;
+      font-weight: 700;
+
+      transition: .25s ease;
+    }
+
+    .github-btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(139,92,246,.5);
+      background: rgba(139,92,246,.12);
+    }
+
+    /* HERO */
+
+    .hero {
+      min-height: 760px;
+
+      display: flex;
+      align-items: center;
+
+      padding: 100px 0 80px;
+
+      position: relative;
+    }
+
+    .hero-content {
+      max-width: 900px;
+      text-align: center;
+      margin: auto;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+
+      padding: 8px 14px;
+
+      border: 1px solid rgba(139,92,246,.28);
+      border-radius: 999px;
+
+      background: rgba(139,92,246,.08);
+
+      color: #c4b5fd;
+
+      font-size: .82rem;
+      font-weight: 800;
+
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .pulse {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+
+      box-shadow: 0 0 15px var(--green);
+    }
+
+    h1 {
+      margin-top: 28px;
+
+      font-size: clamp(3rem, 7vw, 6.3rem);
+
+      line-height: .98;
+      letter-spacing: -.065em;
+
+      font-weight: 900;
+    }
+
+    .gradient-text {
+      background:
+        linear-gradient(
+          100deg,
+          #ffffff 0%,
+          #c4b5fd 35%,
+          #818cf8 65%,
+          #67e8f9 100%
+        );
+
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero-description {
+      max-width: 720px;
+      margin: 28px auto 0;
+
+      color: var(--muted);
+      font-size: 1.12rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+
+      margin-top: 34px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 13px 20px;
+
+      border-radius: 12px;
+
+      font-weight: 800;
+      font-size: .92rem;
+
+      transition: .25s ease;
+    }
+
+    .btn-primary {
+      color: white;
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--primary-2),
+          var(--primary)
+        );
+
+      box-shadow:
+        0 10px 35px rgba(99,102,241,.28);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow:
+        0 15px 45px rgba(99,102,241,.4);
+    }
+
+    .btn-secondary {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      color: #dbeafe;
+    }
+
+    .btn-secondary:hover {
+      transform: translateY(-3px);
+      border-color: rgba(34,211,238,.35);
+    }
+
+    /* METRICS */
+
+    .metrics {
+      margin-top: 65px;
+
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .metric {
+      padding: 25px;
+
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255,255,255,.055),
+          rgba(255,255,255,.018)
+        );
+
+      backdrop-filter: blur(15px);
+
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric::after {
+      content: "";
+
+      position: absolute;
+
+      width: 120px;
+      height: 120px;
+
+      right: -50px;
+      top: -50px;
+
+      border-radius: 50%;
+
+      background: rgba(139,92,246,.12);
+      filter: blur(5px);
+    }
+
+    .metric-value {
+      font-size: 2.3rem;
+      font-weight: 900;
+      letter-spacing: -.04em;
+    }
+
+    .metric-label {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: .88rem;
+    }
+
+    /* SECTION */
+
+    section {
+      padding: 105px 0;
+    }
+
+    .section-heading {
+      max-width: 700px;
+      margin-bottom: 50px;
+    }
+
+    .section-kicker {
+      color: #a78bfa;
+      text-transform: uppercase;
+      font-size: .78rem;
+      font-weight: 900;
+      letter-spacing: .12em;
+    }
+
+    h2 {
+      margin-top: 10px;
+
+      font-size: clamp(2.1rem, 4vw, 3.6rem);
+      line-height: 1.05;
+
+      letter-spacing: -.05em;
+    }
+
+    .section-description {
+      margin-top: 17px;
+      color: var(--muted);
+    }
+
+    /* CARDS */
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      padding: 28px;
+
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(17,24,39,.82),
+          rgba(10,15,26,.68)
+        );
+
+      transition:
+        transform .3s ease,
+        border-color .3s ease;
+
+      position: relative;
+    }
+
+    .card:hover {
+      transform: translateY(-7px);
+      border-color: rgba(139,92,246,.35);
+    }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 14px;
+
+      background: rgba(139,92,246,.1);
+
+      font-size: 1.35rem;
+
+      margin-bottom: 20px;
+    }
+
+    .card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 9px;
+    }
+
+    .card p {
+      color: var(--muted);
+      font-size: .94rem;
+    }
+
+    /* PIPELINE */
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    .pipeline-step {
+      padding: 24px 16px;
+
+      border: 1px solid var(--border);
+      border-radius: 18px;
+
+      background: rgba(255,255,255,.025);
+
+      text-align: center;
+    }
+
+    .step-number {
+      width: 35px;
+      height: 35px;
+
+      margin: auto auto 14px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 50%;
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-2)
+        );
+
+      font-weight: 900;
+      font-size: .85rem;
+    }
+
+    .pipeline-step h3 {
+      font-size: .95rem;
+    }
+
+    .pipeline-step p {
+      margin-top: 5px;
+
+      color: var(--muted);
+      font-size: .78rem;
+    }
+
+    /* ARCHITECTURE */
+
+    .architecture {
+      padding: 35px;
+
+      border: 1px solid var(--border);
+      border-radius: 26px;
+
+      background:
+        radial-gradient(
+          circle at 50% 0%,
+          rgba(99,102,241,.1),
+          transparent 50%
+        ),
+        #0b101b;
+
+      overflow-x: auto;
+    }
+
+    .arch-flow {
+      min-width: 800px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      gap: 10px;
+    }
+
+    .arch-box {
+      width: 145px;
+      min-height: 100px;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      text-align: center;
+
+      border: 1px solid rgba(139,92,246,.25);
+      border-radius: 16px;
+
+      background: rgba(139,92,246,.07);
+    }
+
+    .arch-box strong {
+      font-size: .85rem;
+    }
+
+    .arch-box span {
+      margin-top: 4px;
+
+      color: var(--muted);
+      font-size: .7rem;
+    }
+
+    .arrow {
+      color: #64748b;
+      font-size: 1.4rem;
+    }
+
+    /* RESULTS */
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .result-card {
+      padding: 30px;
+
+      border-radius: 22px;
+      border: 1px solid var(--border);
+
+      background: var(--card);
+    }
+
+    .result-row {
+      margin-top: 23px;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+
+      margin-bottom: 8px;
+
+      font-size: .88rem;
+    }
+
+    .result-value {
+      font-weight: 900;
+    }
+
+    .bar {
+      height: 8px;
+
+      overflow: hidden;
+
+      border-radius: 999px;
+
+      background: #1e293b;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+
+      border-radius: inherit;
+
+      background:
+        linear-gradient(
+          90deg,
+          var(--primary),
+          var(--cyan)
+        );
+    }
+
+    /* TERMINAL */
+
+    .terminal {
+      overflow: hidden;
+
+      border: 1px solid var(--border);
+      border-radius: 20px;
+
+      background: #05070d;
+
+      box-shadow:
+        0 30px 80px rgba(0,0,0,.3);
+    }
+
+    .terminal-top {
+      padding: 13px 16px;
+
+      border-bottom: 1px solid var(--border);
+
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+
+      background: #475569;
+    }
+
+    pre {
+      padding: 28px;
+
+      overflow-x: auto;
+
+      color: #cbd5e1;
+
+      font-family:
+        "SFMono-Regular",
+        Consolas,
+        monospace;
+
+      font-size: .88rem;
+
+      line-height: 1.9;
+    }
+
+    .command {
+      color: #67e8f9;
+    }
+
+    .comment {
+      color: #64748b;
+    }
+
+    /* STRUCTURE */
+
+    .structure {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+
+      gap: 18px;
+    }
+
+    .folder {
+      padding: 25px;
+
+      border: 1px solid var(--border);
+      border-radius: 18px;
+
+      background: rgba(255,255,255,.025);
+
+      font-family:
+        "SFMono-Regular",
+        Consolas,
+        monospace;
+
+      font-size: .85rem;
+
+      white-space: pre-wrap;
+    }
+
+    .folder-title {
+      color: #c4b5fd;
+      margin-bottom: 10px;
+      font-weight: 900;
+    }
+
+    /* ROADMAP */
+
+    .roadmap {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .roadmap-card {
+      padding: 28px;
+
+      border: 1px solid var(--border);
+      border-radius: 20px;
+
+      background: rgba(255,255,255,.025);
+    }
+
+    .roadmap-card span {
+      color: var(--cyan);
+
+      font-size: .75rem;
+      font-weight: 900;
+
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+
+    .roadmap-card h3 {
+      margin-top: 8px;
+    }
+
+    .roadmap-card ul {
+      margin-top: 15px;
+      padding-left: 18px;
+
+      color: var(--muted);
+      font-size: .88rem;
+    }
+
+    /* CTA */
+
+    .cta {
+      text-align: center;
+
+      padding: 80px 30px;
+
+      border: 1px solid rgba(139,92,246,.22);
+      border-radius: 28px;
+
+      background:
+        radial-gradient(
+          circle at 50% 0%,
+          rgba(139,92,246,.2),
+          transparent 55%
+        ),
+        rgba(139,92,246,.04);
+    }
+
+    .cta h2 {
+      max-width: 750px;
+      margin: auto;
+    }
+
+    .cta p {
+      max-width: 620px;
+      margin: 20px auto 0;
+
+      color: var(--muted);
+    }
+
+    /* FOOTER */
+
+    footer {
+      padding: 40px 0 55px;
+
+      border-top: 1px solid var(--border);
+
+      color: var(--muted);
+
+      text-align: center;
+
+      font-size: .86rem;
+    }
+
+    /* ANIMATION */
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .hero-content {
+      animation: float 7s ease-in-out infinite;
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 900px) {
+
+      .nav-links {
+        display: none;
+      }
+
+      .metrics,
+      .grid-3,
+      .results-grid,
+      .structure,
+      .roadmap {
+        grid-template-columns: 1fr;
+      }
+
+      .pipeline {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding: 90px 0 70px;
+      }
+
+      .hero-content {
+        animation: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+
+      .container {
+        width: min(var(--max), calc(100% - 26px));
+      }
+
+      .hero-actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      h1 {
+        font-size: 3rem;
+      }
+
+      section {
+        padding: 75px 0;
+      }
+
+      .pipeline {
+        grid-template-columns: 1fr;
+      }
+
+      .architecture {
+        padding: 18px;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <!-- NAVIGATION -->
+
+  <nav>
+    <div class="container nav-inner">
+
+
+  <a href="#" class="brand">
+    <span class="brand-icon">🧠</span>
+    <span>Bug Severity AI</span>
+  </a>
+
+  <div class="nav-links">
+    <a href="#overview">Overview</a>
+    <a href="#methodology">Methodology</a>
+    <a href="#results">Results</a>
+    <a href="#research">Research</a>
+  </div>
+
+  <a
+    class="github-btn"
+    href="https://github.com/upadrastaharshavardhan/Bug-Severity-Prediction-using-NLP"
+    target="_blank"
+    rel="noopener"
+  >
+    GitHub ↗
+  </a>
+
+</div>
+
+
+  </nav>
+
+  <!-- HERO -->
+
+  <header class="hero">
+
+
+<div class="container">
+
+  <div class="hero-content">
+
+    <div class="eyebrow">
+      <span class="pulse"></span>
+      Research Package · Project 8
+    </div>
+
+    <h1>
+      <span class="gradient-text">
+        Bug Severity
+        <br>
+        Prediction using NLP
+      </span>
+    </h1>
+
+    <p class="hero-description">
+      An NLP-powered machine learning system that transforms
+      unstructured software bug reports into actionable severity
+      predictions for automated triage and engineering prioritization.
+    </p>
+
+    <div class="hero-actions">
+
+      <a
+        href="https://github.com/upadrastaharshavardhan/Bug-Severity-Prediction-using-NLP"
+        target="_blank"
+        rel="noopener"
+        class="btn btn-primary"
+      >
+        View Repository →
+      </a>
+
+      <a href="#methodology" class="btn btn-secondary">
+        Explore Research
+      </a>
+
+    </div>
+
+    <div class="metrics">
+
+      <div class="metric">
+        <div class="metric-value">95.60%</div>
+        <div class="metric-label">Accuracy</div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-value">0.955</div>
+        <div class="metric-label">Macro F1</div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-value">0.968</div>
+        <div class="metric-label">Critical-Class F1</div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+  </header>
+
+  <!-- OVERVIEW -->
+
+  <section id="overview">
+
+
+<div class="container">
+
+  <div class="section-heading">
+
+    <div class="section-kicker">
+      The Problem
+    </div>
+
+    <h2>
+      Turning manual bug triage into intelligent classification.
+    </h2>
+
+    <p class="section-description">
+      Modern engineering teams process large volumes of bug reports.
+      Manually deciding which issues deserve immediate attention can
+      become slow, inconsistent, and difficult to scale.
+    </p>
+
+  </div>
+
+  <div class="grid-3">
+
+    <div class="card">
+
+      <div class="card-icon">🐞</div>
+
+      <h3>Unstructured Reports</h3>
+
+      <p>
+        Bug reports contain natural language, error descriptions,
+        symptoms, reproduction information, and technical context.
+      </p>
+
+    </div>
+
+    <div class="card">
+
+      <div class="card-icon">🚨</div>
+
+      <h3>Severity Decisions</h3>
+
+      <p>
+        Teams must determine which defects are critical, high priority,
+        moderate, or low impact.
+      </p>
+
+    </div>
+
+    <div class="card">
+
+      <div class="card-icon">🤖</div>
+
+      <h3>AI-Assisted Triage</h3>
+
+      <p>
+        NLP models can learn relationships between bug-report language
+        and historical severity labels.
+      </p>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+  </section>
+
+  <!-- METHODOLOGY -->
+
+  <section id="methodology">
+
+
+<div class="container">
+
+  <div class="section-heading">
+
+    <div class="section-kicker">
+      Methodology
+    </div>
+
+    <h2>
+      From natural language to severity intelligence.
+    </h2>
+
+    <p class="section-description">
+      The research package follows a reproducible NLP classification
+      workflow from data preparation through model training and
+      evaluation.
+    </p>
+
+  </div>
+
+  <div class="pipeline">
+
+    <div class="pipeline-step">
+      <div class="step-number">01</div>
+      <h3>Bug Reports</h3>
+      <p>Summary & description</p>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="step-number">02</div>
+      <h3>Preprocessing</h3>
+      <p>Clean & normalize text</p>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="step-number">03</div>
+      <h3>NLP Features</h3>
+      <p>Text representation</p>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="step-number">04</div>
+      <h3>Classification</h3>
+      <p>Learn severity patterns</p>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="step-number">05</div>
+      <h3>Prediction</h3>
+      <p>Severity output</p>
+    </div>
+
+  </div>
+
+</div>
+
+
+  </section>
+
+  <!-- ARCHITECTURE -->
+
+  <section>
+
+
+<div class="container">
+
+  <div class="section-heading">
+
+    <div class="section-kicker">
+      System Architecture
+    </div>
+
+    <h2>
+      A complete AI-assisted bug triage pipeline.
+    </h2>
+
+  </div>
+
+  <div class="architecture">
+
+    <div class="arch-flow">
+
+      <div class="arch-box">
+        <strong>Bug Report</strong>
+        <span>Textual input</span>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <div class="arch-box">
+        <strong>Preprocessor</strong>
+        <span>Cleaning</span>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <div class="arch-box">
+        <strong>NLP Layer</strong>
+        <span>Features</span>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <div class="arch-box">
+        <strong>Classifier</strong>
+        <span>ML model</span>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <div class="arch-box">
+        <strong>Severity</strong>
+        <span>Prediction</span>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+  </section>
+
+  <!-- RESULTS -->
+
+  <section id="results">
+
+
+<div class="container">
+
+  <div class="section-heading">
+
+    <div class="section-kicker">
+      Experimental Results
+    </div>
+
+    <h2>
+      Strong classification performance.
+    </h2>
+
+    <p class="section-description">
+      The research package reports high overall accuracy together with
+      strong macro-averaged and critical-class F1 performance.
+    </p>
+
+  </div>
+
+  <div class="results-grid">
+
+    <div class="result-card">
+
+      <h3>Model Performance</h3>
+
+      <div class="result-row">
+
+        <div class="result-header">
+          <span>Accuracy</span>
+          <span class="result-value">95.60%</span>
+        </div>
+
+        <div class="bar">
+          <span style="width:95.6%"></span>
+        </div>
+
+      </div>
+
+      <div class="result-row">
+
+        <div class="result-header">
+          <span>Macro F1</span>
+          <span class="result-value">0.955</span>
+        </div>
+
+        <div class="bar">
+          <span style="width:95.5%"></span>
+        </div>
+
+      </div>
+
+      <div class="result-row">
+
+        <div class="result-header">
+          <span>Critical F1</span>
+          <span class="result-value">0.968</span>
+        </div>
+
+        <div class="bar">
+          <span style="width:96.8%"></span>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="result-card">
+
+      <h3>Why These Metrics Matter</h3>
+
+      <p
+        style="
+          margin-top:18px;
+          color:#94a3b8;
+          font-size:.93rem;
+        "
+      >
+        Accuracy measures overall correctness, while Macro F1 gives
+        equal importance to the individual classes. Critical-class F1
+        provides a focused view of how effectively the system identifies
+        the most important bug category.
+      </p>
+
+      <p
+        style="
+          margin-top:18px;
+          color:#94a3b8;
+          font-size:.93rem;
+        "
+      >
+        In production, these metrics should be monitored continuously
+        against project-specific data and severity distributions.
+      </p>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+  </section>
+
+  <!-- REPRODUCTION -->
+
+  <section>
+
+
+<div class="container">
+
+  <div class="section-heading">
+
+    <div class="section-kicker">
+      Reproducibility
+    </div>
+
+    <h2>
+      Reproduce the experiment.
+    </h2>
+
+    <p class="section-description">
+      The repository provides a deterministic workflow for generating
+      the experimental dataset and training the model.
+    </p>
+
+  </div>
+
+  <div class="terminal">
+
+    <div class="terminal-top">
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+    </div>
+
+
+<pre><span class="comment"># Clone repository</span>
+<span class="command">git clone https://github.com/upadrastaharshavardhan/Bug-Severity-Prediction-using-NLP.git</span>
+
+<span class="comment"># Enter project</span>
+<span class="command">cd Bug-Severity-Prediction-using-NLP/codebase</span>
+
+<span class="comment"># Install dependencies</span>
+<span class="command">pip install -r requirements.txt</span>
+
+<span class="comment"># Generate reproducible dataset</span>
+<span class="command">python scripts/generate_data.py --n-samples 4000 --seed 42</span>
+
+<span class="comment"># Train model</span>
+<span class="command">python scripts/train.py</span></pre>
+
+
+  </div>
+
+</div>
+
+
+  </section>
+
+  <!-- RESEARCH -->
+
+  <section id="research">
+
+
+<div class="container">
+
+  <div class="section-heading">
+
+    <div class="section-kicker">
+      Research Applications
+    </div>
+
+    <h2>
+      Where this technology can be applied.
+    </h2>
+
+  </div>
+
+  <div class="grid-3">
+
+    <div class="card">
+      <div class="card-icon">🎯</div>
+      <h3>Automated Triage</h3>
+      <p>
+        Automatically suggest severity when new issues enter a bug
+        tracking system.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-icon">⚡</div>
+      <h3>Engineering Prioritization</h3>
+      <p>
+        Help development teams focus attention on potentially
+        high-impact defects.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-icon">📊</div>
+      <h3>Quality Analytics</h3>
+      <p>
+        Track severity patterns and defect trends across releases
+        and projects.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-icon">🔄</div>
+      <h3>CI/CD Integration</h3>
+      <p>
+        Integrate severity prediction into automated software-quality
+        workflows.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-icon">🤖</div>
+      <h3>AI QA Agents</h3>
+      <p>
+        Use severity as one intelligence signal inside larger
+        autonomous QA systems.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-icon">🧠</div>
+      <h3>Human-in-the-Loop</h3>
+      <p>
+        Automatically handle confident predictions while routing
+        uncertain cases to engineers.
+      </p>
+    </div>
+
+  </div>
+
+</div>
+
+
+  </section>
+
+  <!-- REPOSITORY -->
+
+  <section>
+
+
+<div class="container">
+
+  <div class="section-heading">
+
+    <div class="section-kicker">
+      Repository
+    </div>
+
+    <h2>
+      Built as a complete research artifact.
+    </h2>
+
+  </div>
+
+  <div class="structure">
+
+    <div class="folder">
+
+      <div class="folder-title">
+        📁 Research Package
+      </div>
+
+
+Bug-Severity-Prediction-using-NLP/
+│
+├── 📄 README.md
+├── 📄 LICENSE
+│
+├── 📁 paper/
+│   ├── Research Paper.pdf
+│   └── Research Paper.md
+│
+├── 📁 docs/
+│
+├── 📁 results/
+│
+└── 📁 codebase/
+├── 📁 scripts/
+├── requirements.txt
+└── project source
+
+
+    </div>
+
+    <div class="folder">
+
+      <div class="folder-title">
+        🔬 Research Layers
+      </div>
+
+
+DATA
+↓
+NLP
+↓
+FEATURE REPRESENTATION
+↓
+MACHINE LEARNING
+↓
+CLASSIFICATION
+↓
+EVALUATION
+↓
+BUG TRIAGE
+↓
+ENGINEERING INTELLIGENCE
+
+
+    </div>
+
+  </div>
+
+</div>
+
+
+  </section>
+
+  <!-- ROADMAP -->
+
+  <section>
+
+
+<div class="container">
+
+  <div class="section-heading">
+
+    <div class="section-kicker">
+      Future Research
+    </div>
+
+    <h2>
+      The next generation of severity intelligence.
+    </h2>
+
+  </div>
+
+  <div class="roadmap">
+
+    <div class="roadmap-card">
+
+      <span>01 · NLP Evolution</span>
+
+      <h3>Contextual Language Models</h3>
+
+      <ul>
+        <li>BERT</li>
+        <li>RoBERTa</li>
+        <li>DeBERTa</li>
+        <li>DistilBERT</li>
+        <li>Semantic embeddings</li>
+      </ul>
+
+    </div>
+
+    <div class="roadmap-card">
+
+      <span>02 · Intelligence</span>
+
+      <h3>Explainable Prediction</h3>
+
+      <ul>
+        <li>Prediction confidence</li>
+        <li>Feature importance</li>
+        <li>Human review queues</li>
+        <li>Active learning</li>
+        <li>Model feedback loops</li>
+      </ul>
+
+    </div>
+
+    <div class="roadmap-card">
+
+      <span>03 · AI Engineering</span>
+
+      <h3>Autonomous Bug Triage</h3>
+
+      <ul>
+        <li>LLM reasoning</li>
+        <li>Issue tracker integration</li>
+        <li>Automated routing</li>
+        <li>Risk prioritization</li>
+        <li>Continuous learning</li>
+      </ul>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+  </section>
+
+  <!-- CTA -->
+
+  <section>
+
+
+<div class="container">
+
+  <div class="cta">
+
+    <h2>
+      From unstructured bug reports
+      to actionable engineering intelligence.
+    </h2>
+
+    <p>
+      Explore the complete research package, reproduce the experiments,
+      inspect the results, and extend the system toward intelligent
+      software-quality automation.
+    </p>
+
+    <div
+      class="hero-actions"
+      style="margin-top:30px"
+    >
+
+      <a
+        href="https://github.com/upadrastaharshavardhan/Bug-Severity-Prediction-using-NLP"
+        target="_blank"
+        rel="noopener"
+        class="btn btn-primary"
+      >
+        ⭐ Open on GitHub
+      </a>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+  </section>
+
+  <!-- FOOTER -->
+
+  <footer>
+
+
+<div class="container">
+
+  <p>
+    🧠 Bug Severity Prediction using NLP
+  </p>
+
+  <p style="margin-top:5px">
+    Research Package — Project 8 · MIT License
+  </p>
+
+  <p style="margin-top:14px">
+    Built for research, experimentation, and intelligent software quality.
+  </p>
+
+</div>
+
+
+  </footer>
+
+</body>
+</html>
