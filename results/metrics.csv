@@ -1,0 +1,7 @@
+Metric,Value
+Accuracy,0.9560
+Macro_F1,0.955
+Critical_F1,0.968
+High_F1,0.951
+Medium_F1,0.948
+Low_F1,0.953
